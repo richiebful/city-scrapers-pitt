@@ -1,10 +1,11 @@
+import datetime
+import logging
+import re
+import time
+
 from city_scrapers_core.constants import BOARD
 from city_scrapers_core.items import Meeting
 from city_scrapers_core.spiders import CityScrapersSpider
-import re
-import logging
-import datetime
-import time
 
 
 class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
@@ -13,7 +14,8 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
     timezone = "America/New_York"
     allowed_domains = ["www.alleghenycounty.us"]
     start_urls = [
-        "https://www.alleghenycounty.us/economic-development/authorities/meetings-reports/raac/meetings.aspx"
+        "https://www.alleghenycounty.us/economic-development/\
+        authorities/meetings-reports/raac/meetings.aspx"
     ]
     month_names = [
         "January", "February", "March", "April", "May", "June", "July", "August", "September",
@@ -64,7 +66,7 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
 
     def parse_time(self, item):
         """Parse start datetime as a naive datetime object."""
-        time_regex = re.search('\d{1,2}:\d{2}[AP]M', item)
+        time_regex = re.search(r'\d{1,2}:\d{2}[AP]M', item)
         if time_regex:
             logging.debug(time_regex[0])
             tm_struct = time.strptime(time_regex[0], '%I:%M%p')
@@ -77,7 +79,9 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
         """Parse or generate location."""
         return {
             "address": "Allegheny County Economic Development",
-            "name": "Board Room, Suite 900\nChatham One, 112 Washington Place\nPittsburgh, PA 15219",
+            "name":
+                "Board Room, Suite 900\nChatham One,\
+                 112 Washington Place\nPittsburgh, PA 15219",
         }
 
     def parse_source(self, response):
