@@ -68,8 +68,8 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
         """Parse start datetime as a naive datetime object."""
         time_regex = re.search(r'\d{1,2}:\d{2}[AP]M', item)
         if time_regex:
-            logging.debug(time_regex[0])
-            tm_struct = time.strptime(time_regex[0], '%I:%M%p')
+            logging.debug(time_regex.group(0))
+            tm_struct = time.strptime(time_regex.group(0), '%I:%M%p')
             return datetime.time(*tm_struct[3:6])
         else:
             return None
