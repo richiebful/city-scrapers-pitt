@@ -10,6 +10,7 @@ scrapy = "*"
 python-dateutil = "*"
 scrapy-sentry = "*"
 city-scrapers-core = {extras = ["aws"],version = "*"}
+pdfquery = "*"
 
 [dev-packages]
 freezegun = "*"
