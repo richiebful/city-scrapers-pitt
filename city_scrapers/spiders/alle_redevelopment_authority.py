@@ -76,6 +76,8 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
 
     def parse_start(self, meeting_date, meeting_time):
         return datetime.datetime.combine(meeting_date.date(), meeting_time)
+
+    def parse_location(self):
         """Parse or generate location."""
         return {
             "address": "Allegheny County Economic Development",
