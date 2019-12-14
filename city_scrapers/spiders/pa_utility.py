@@ -24,7 +24,7 @@ class PaUtilitySpider(CityScrapersSpider):
         parse yields meeting items scraped from the PDFs
         """
         now = datetime.datetime.now()
-        years = [2021]
+        years = [now, now + 1]
 #        years = [now.year, now.year + 1]
         for year in years:
             mtg_generator = self.parse_pdf(year)
@@ -32,7 +32,9 @@ class PaUtilitySpider(CityScrapersSpider):
                 yield mtg
 
     def parse_pdf(self, year):
-        #load pdf from url and place into file-like object
+        """
+        load pdf from url and place into file-like object
+        """
         pdf_url = 'http://www.puc.state.pa.us/General/pm_agendas/{0}/{0}_PM_Schedule.pdf'.format(year)
         resp = requests.get(pdf_url, stream=True)
         if not resp.ok:
