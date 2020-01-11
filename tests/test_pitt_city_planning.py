@@ -30,8 +30,7 @@ Uncomment below
 
 def test_title():
     assert parsed_items[0][
-        "title"
-    ] == "CMU IMP Amendment for Scaife Hall and Zone Change Petition (parcel53-B-100)"
+        "title"] == "CMU IMP Amendment for Scaife Hall and Zone Change Petition (parcel53-B-100)"
 
 
 def test_description():
