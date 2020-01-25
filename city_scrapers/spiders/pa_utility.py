@@ -8,6 +8,17 @@ import re
 import requests
 import io
 
+def retrieve_dates(sel):
+    meeting_line = sel.text()
+    logging.debug(meeting_line)
+    str_dates = re.split('(?<=\d) ', meeting_line)
+    logging.debug(str_dates)
+    for d in str_dates:
+        try:
+            yield datetime.datetime.strptime(d, '%B %d, %Y')
+        except:
+            continue
+
 class PaUtilitySpider(CityScrapersSpider):
     name = "pa_utility"
     agency = "PA Utility Commission"
@@ -24,10 +35,11 @@ class PaUtilitySpider(CityScrapersSpider):
         parse yields meeting items scraped from the PDFs
         """
         now = datetime.datetime.now()
-        years = [now, now + 1]
-#        years = [now.year, now.year + 1]
+        years = [now.year, now.year + 1]
         for year in years:
             mtg_generator = self.parse_pdf(year)
+            if mtg_generator is None:
+                continue
             for mtg in mtg_generator:
                 yield mtg
 
@@ -35,32 +47,15 @@ class PaUtilitySpider(CityScrapersSpider):
         """
         load pdf from url and place into file-like object
         """
-        pdf_url = 'http://www.puc.state.pa.us/General/pm_agendas/{0}/{0}_PM_Schedule.pdf'.format(year)
-        resp = requests.get(pdf_url, stream=True)
-        if not resp.ok:
+        selections = self.raw_meetings_from_pdf(year)
+        if selections is None:
             return
-        resp.raw.decode_content = True
-        contents = bytearray()
-        for chunk in resp.iter_content(chunk_size=128):
-            contents += chunk
-        fp = io.BytesIO(contents)
-        pdf = pdfquery.PDFQuery(fp)
-        pdf.load()
-        selections = [pdf.pq('LTTextLineHorizontal:contains("{0}")'.format(m)) for m in self.month_names]
-        logging.debug(selections[0])
-        monthly_dates = [s.text() for s in selections]
-        str_dates = []
-        for d in monthly_dates:
-            str_dates += re.split('(?<=\d) ', d)
 
-        dt_dates = []
-        for d in str_dates:
-            try:
-                dt_dates.append(datetime.datetime.strptime(d, '%B %d, %Y'))
-            except:
-                continue
-        
-        for dt in dt_dates:
+        logging.debug(selections[0])
+        monthly_dates = []
+        for s in selections:
+            monthly_dates.extend(retrieve_dates(s))
+        for dt in monthly_dates:
             meeting = Meeting(
                 title=self._parse_title(None),
                 description=self._parse_description(None),
@@ -75,6 +70,23 @@ class PaUtilitySpider(CityScrapersSpider):
             meeting["id"] = self._get_id(meeting)
 
             yield meeting
+
+    def raw_meetings_from_pdf(self, year):
+        try:
+            pdf_url = 'http://www.puc.state.pa.us/General/pm_agendas/{0}/{0}_PM_Schedule.pdf'.format(year)
+            resp = requests.get(pdf_url, stream=True)
+            if not resp.ok:
+                return
+            resp.raw.decode_content = True
+            contents = bytearray()
+            for chunk in resp.iter_content(chunk_size=128):
+                contents += chunk
+            fp = io.BytesIO(contents)
+            pdf = pdfquery.PDFQuery(fp)
+            pdf.load()
+            return [pdf.pq('LTTextLineHorizontal:contains("{0}")'.format(m)) for m in self.month_names]
+        except:
+            return
 
        
     def _parse_title(self, item):
