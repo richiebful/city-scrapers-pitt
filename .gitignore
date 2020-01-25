@@ -135,3 +135,5 @@ logs/*.log
 travis/*.json
 
 # output files: local gitignore added to city_scrapers/local_outputs/
+
+# emacs is stupid

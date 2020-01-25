@@ -14,8 +14,7 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
     timezone = "America/New_York"
     allowed_domains = ["www.alleghenycounty.us"]
     start_urls = [
-        "https://www.alleghenycounty.us/economic-development/\
-        authorities/meetings-reports/raac/meetings.aspx"
+        "https://www.alleghenycounty.us/economic-development/authorities/meetings-reports/raac/meetings.aspx"
     ]
     month_names = [
         "January", "February", "March", "April", "May", "June", "July", "August", "September",
@@ -35,6 +34,7 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
         meeting_time = self.parse_time(text)
 
         for paragraph in response.xpath('//p/text()').extract():
+            logging.debug(paragraph)
             match = re.match(self.month_names_regex, paragraph.strip())
             if not match:
                 continue
