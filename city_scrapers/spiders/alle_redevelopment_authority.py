@@ -15,7 +15,7 @@ class AlleRedevelopmentAuthoritySpider(CityScrapersSpider):
     allowed_domains = ["www.alleghenycounty.us"]
     start_urls = [
         "https://www.alleghenycounty.us/economic-development/\
-        authorities/meetings-reports/raac/meetings.aspx"
+authorities/meetings-reports/raac/meetings.aspx"
     ]
     month_names = [
         "January", "February", "March", "April", "May", "June", "July", "August", "September",
