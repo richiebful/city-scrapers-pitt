@@ -4,6 +4,16 @@ from city_scrapers_core.spiders import CityScrapersSpider
 import logging
 import scrapy
 
+def CommunityCollegeSubScraper(response):
+    logging.debug(response)
+    pass
+
+def HousingAuthoritySubScraper(response):
+    pass
+
+scraper_selector = {"HOUSING AUTHORITY": HousingAuthoritySubScraper,
+                    "COMMUNITY COLLEGE OF ALLEGHENY COUNTY": CommunityCollegeSubScraper,
+                    "ALLEGHENY REGIONAL ASSET DISTRICT": print}
 
 class PittsburghCourierSpider(CityScrapersSpider):
     name = "pittsburgh_courier"
@@ -25,11 +35,18 @@ class PittsburghCourierSpider(CityScrapersSpider):
         Parse 'table of contents' pages to get to weekly
         meetings
         """
-        for url in response.xpath("a[contains(@title, 'Meetings')]/@href").extract():
+        for url in response.xpath("//a[contains(@title, 'Meetings')]/@href").extract():
+            logging.info('follow path')
             yield scrapy.Request(url, self.parse_meeting)
 
     def parse_meeting(self, response):
-        yield response.url
+        paragraphs = response.xpath('//article//p')
+        paragraph_texts = [paragraph_text.upper() for paragraph_text in paragraphs.extract()]
+        sections = zip(paragraphs, paragraph_texts)
+        for section in sections:
+            for key in scraper_selector.keys():
+                if key in section[1]:
+                    scraper_selector[key](section[0])                    
 
     def _parse_title(self, item):
         """Parse or generate meeting title."""
